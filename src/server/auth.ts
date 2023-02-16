@@ -9,7 +9,6 @@ import SpotifyProvider from "next-auth/providers/spotify";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "../env/server.mjs";
 import { prisma } from "./db";
-import { Prisma } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types.
@@ -27,10 +26,10 @@ declare module "next-auth" {
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    // ...other properties
+    // role: UserRole;
+  }
 }
 
 /**
@@ -78,6 +77,11 @@ export const authOptions: NextAuthOptions = {
         } catch (error) {
           console.error("Error regarding refresh token", error);
         }
+      }
+      if (session.user) {
+        session.user.id = user.id;
+        // session.user.role = user.role; <-- put other properties on the session here
+        // session.user.access_token = user.access_token
       }
       return session;
     },
